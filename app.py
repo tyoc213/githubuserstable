@@ -1,7 +1,7 @@
 import flask
 from flask import request, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
-from ghdb import db, get_ghu_page
+from ghdb import db, get_ghu_page, get_ghu_total
 from flask_caching import Cache
 from flask_paginate import Pagination, get_page_args
 import os
@@ -30,7 +30,7 @@ def favicon():
 @cache.cached(timeout=10, query_string=True)
 def main():
     '''Displays a specific `page` with `total` users'''
-    total=5000 # TODO: get from db
+    total=get_ghu_total()
     page, per_page, offset = get_page_args(page_parameter='page',
                                            per_page_parameter='total')
     pagination = Pagination(page=page, per_page=per_page, total=total)
@@ -44,11 +44,21 @@ def main():
                            pagination=pagination))
 
 @app.route('/all', methods=['POST', 'GET'])
-@cache.memoize(10)
+@cache.cached(timeout=10, query_string=True)
 def all_users():
     '''JSON response with all users.'''
-    data = get_ghu_page()
+    total = get_ghu_total()
+    username = request.args.get('username')
+    order_by = request.args.get('order_by')
+    if request.args.get('page') is None and request.args.get('total') is None:
+        data = get_ghu_page(username=username)
+    else:
+        page, per_page, offset = get_page_args(page_parameter='page',
+                                           per_page_parameter='total')
+        pagination = Pagination(page=page, per_page=per_page, total=total)
+        data = get_ghu_page(page, per_page, username=username, order_by=order_by)
     user_list = data[0]
+    
     # total_pages = data[1]
     user_list = [o.serialize() for o in user_list]
     return flask.json.jsonify(user_list)

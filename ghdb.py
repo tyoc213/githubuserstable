@@ -26,7 +26,7 @@ class GithubUser(db.Model):
         return '<User %r>' % self.user
 
 def update_or_insert(user_dict):
-    '''Fetch github users and upsert them on DB'''
+    '''Fetch github users and upsert them on DB.'''
     # get all incoming ids and ids on database
     all_incoming_ids = set(user_dict.keys())
     all_ids = set(dict(db.session.query(GithubUser.id, GithubUser)))
@@ -46,14 +46,26 @@ def update_or_insert(user_dict):
 def create_all():
     SQLAlchemy.create_all(db)
 
-def get_ghu_page(page=0, total=None):
-    '''Get a specific page with `total` users'''
+def get_ghu_page(page=0, total=None, username=None,order_by=None):
+    '''Get a specific page with `total` users.'''
     # TODO: GithubUser.id.asc() throws error
-    if total is None:
+    if username:
+        print('username', username)
+        postlist = GithubUser.query.filter_by(user=username)
+    elif total is None:
         postlist = GithubUser.query.filter(GithubUser.id).offset(page).all()
     else:
         # calculate an offset to the page, but at start of page
         page_offset = page * total
-        postlist = GithubUser.query.filter(GithubUser.id).offset(page_offset).limit(total).all()
+        if order_by is not None:
+            if order_by == 'id': order_by = GithubUser.id
+            elif order_by == 'user': order_by = GithubUser.user
+            elif order_by == 'profile': order_by = GithubUser.profile
+            elif order_by == 'type': order_by = GithubUser.typ3
+        postlist = GithubUser.query.filter(GithubUser.id).order_by(order_by).offset(page_offset).limit(total).all()
     count = db.session.query(GithubUser).count()
     return postlist, count
+
+def get_ghu_total():
+    '''Get the `total` users.'''
+    return db.session.query(GithubUser).count()
