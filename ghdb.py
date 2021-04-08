@@ -1,22 +1,32 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///clidata.sqlite3'
-app.config['SECRET_KEY'] = "aa20ff7c-8ad5-44a7-b0c3-8060b126e186"
-db = SQLAlchemy(app)
 
+db = SQLAlchemy()
 
 class GithubUser(db.Model):
+    '''GithubUser is the default model to store github profiles.'''
     id = db.Column(db.Integer, primary_key=True, autoincrement=False)
     user = db.Column(db.String(80), unique=True, nullable=False)
     image_url = db.Column(db.String(1200), unique=False, nullable=False)
     profile = db.Column(db.String(1200), unique=False, nullable=False)
     typ3 = db.Column(db.String(10), unique=False, nullable=False)
 
+    def serialize(self):
+        '''Return a dict of the members that canbe serialized.'''
+        return {
+            'id': self.id,
+            'user': self.user,
+            'image_url': self.image_url,
+            'profile': self.profile,
+            'type': self.typ3
+            }
+
     def __repr__(self):
+        '''User representation for printing.'''
         return '<User %r>' % self.user
 
 def update_or_insert(user_dict):
+    '''Fetch github users and upsert them on DB'''
     # get all incoming ids and ids on database
     all_incoming_ids = set(user_dict.keys())
     all_ids = set(dict(db.session.query(GithubUser.id, GithubUser)))
@@ -35,3 +45,15 @@ def update_or_insert(user_dict):
 
 def create_all():
     SQLAlchemy.create_all(db)
+
+def get_ghu_page(page=0, total=None):
+    '''Get a specific page with `total` users'''
+    # TODO: GithubUser.id.asc() throws error
+    if total is None:
+        postlist = GithubUser.query.filter(GithubUser.id).offset(page).all()
+    else:
+        # calculate an offset to the page, but at start of page
+        page_offset = page * total
+        postlist = GithubUser.query.filter(GithubUser.id).offset(page_offset).limit(total).all()
+    count = db.session.query(GithubUser).count()
+    return postlist, count

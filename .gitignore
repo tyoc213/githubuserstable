@@ -1,2 +1,6 @@
 __pycache__/
 .vscode/
+.coverage
+clidata.sqlite3
+clidata.sqlite3.copy
+htmlcov/

@@ -2,6 +2,7 @@ from click.testing import CliRunner
 from githubusers import get_github_users
 
 def test_first_user():
+    '''The first github user should be `mojombo`'''
     first_user = get_github_users(1,0)
     assert first_user == {1:
     {
@@ -14,5 +15,6 @@ def test_first_user():
     }
 
 def test_no_users():
+    '''There is a finite number of github users.'''
     no_result= get_github_users(10_000, 89_999_999)
     assert no_result == {}

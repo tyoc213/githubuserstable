@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Github users</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <link
+      rel="stylesheet"
+      href="//cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css"
+    />
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.6.0.js"></script>
+    <script src="//cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
+  </head>
+  <body>
+    <table id="example" class="display" width="100%"></table>
+    <table id="dt" class="table" width="100%"></table>
+    <script>
+      $(document).ready(function () {
+        $("#dt").DataTable({
+          lengthMenu: [
+            [10, 25, 50, 100, 500, 10000, -1],
+            [10, 25, 50, 100, 500, 10000, "All"],
+          ],
+          ajax: {
+            url: "/all",
+            dataType: "json",
+            dataSrc: "",
+          },
+          columns: [
+            {
+              title: "Profile",
+              data: "image_url",
+              render: function (data, type, full, meta) {
+                return (
+                  '<a href="' +
+                  full["profile"] +
+                  '"><img src="' +
+                  data +
+                  '" loading="lazy" style="height:100px;width:100px;"/></a>'
+                );
+              },
+            },
+            { data: "id", title: "ID" },
+            { title: "User", data: "user" },
+            { title: "Type", data: "type" },
+          ],
+        });
+      });
+    </script>
+  </body>
+</html>
