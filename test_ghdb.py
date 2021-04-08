@@ -42,7 +42,7 @@ def test_pager_count():
         assert 10 == len(data1[0])
         data2 = get_ghu_page(0, 1)
         assert 1 == len(data2[0])
-        data3 = get_ghu_page(10, 10)
+        data3 = get_ghu_page(3, 10)
         assert 10 == len(data3[0])
         assert data3 not in data1
         # check default that is all the data

@@ -8,6 +8,7 @@ from ghdb import db, create_all, update_or_insert
 from flask_caching import Cache
 
 def create_app():
+    '''Create app with sqlalchemy (without events) and simple cache.'''
     app = flask.Flask(__name__, template_folder='templates')
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///clidata.sqlite3'
     app.config['SECRET_KEY'] = "aa20ff7c-8ad5-44a7-b0c3-8060b126e186"
