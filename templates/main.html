@@ -30,5 +30,37 @@
     </tbody>
 </table>
 <div style="width: 80%;">{{ pagination.links }}</div>
+<script>
+    function preloadImages() {
+      var images = document.getElementsByTagName("img");
+      var array = [];
+      for (var i = 0; i < images.length; i++) {
+        array.push(images[i].src);
+      }
+      if (!preloadImages.list) {
+        preloadImages.list = [];
+      }
+      var list = preloadImages.list;
+      for (var i = 0; i < array.length; i++) {
+        var img = new Image();
+        img.onload = function () {
+          var index = list.indexOf(this);
+          if (index !== -1) {
+            list.splice(index, 1);
+          }
+        };
+        list.push(img);
+        img.src = array[i];
+      }
+    }
+
+    if (document.readyState === "complete") {
+      preloadImages();
+    } else {
+      window.addEventListener("load", function () {
+        preloadImages();
+      });
+    }
+</script>
 </body>
 </html>
